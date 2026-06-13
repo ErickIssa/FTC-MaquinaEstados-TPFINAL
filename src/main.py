@@ -1,4 +1,4 @@
-from src.AFD import AFD
+from AFD import AFD
 
 estados = {"q0", "q1", "q2"}
 estadoInicial = "q0"
