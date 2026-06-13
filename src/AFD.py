@@ -24,3 +24,4 @@ class AFD:
         else:
             self.estados[estadoOrigem].transicoes[simbolo] = (estadoDestino, simbolo) #adiciona a transição ao dicionário de transições do estado de origem
        
+       
