@@ -11,14 +11,14 @@ se tiver transição com 0 ou com 1, chamar adicionaTransicao 2x uma pa cada sim
 class Estado:
     def __init__(self,nome: str):
         self.nome = nome
-        self.transicoes: dict[str, str] = {} # dicionario de transições no formato (simbolo, estadoDestino)
+        self.transicoes: dict[str, str] = {} # dicionario de transições no formato (simbolo : estadoDestino)
         #esse dicionario depois pode guardar uma tupla que tem mais informações
 
 
 class AFD:
     def __init__(self,estadoNomes: set[str], estadoInicial: str, estadosFinais: set[str]):
         self.estadoNomes = estadoNomes #so recebe set, para nao repetir estados
-        self.estadoInicial = estadoInicial #so recebe set, para nao repetir estados
+        self.estadoInicial = estadoInicial #so recebe string, para nao repetir estados
         self.estadosFinais = estadosFinais #so recebe set, para nao repetir estados
         self.estados = {} #dicionario de estados, onde a chave é o nome do estado e o valor é um objeto do tipo Estado
 
@@ -57,3 +57,12 @@ class AFD:
 
         print("================")
         return
+    
+    def processaEntrada(self, entrada: str) -> bool:
+        estadoAtual = self.estadoInicial
+        for simbolo in entrada:
+            if simbolo not in self.estados[estadoAtual].transicoes:
+                return False
+            else:
+                estadoAtual = self.estados[estadoAtual].transicoes[simbolo]
+        return estadoAtual in self.estadosFinais
