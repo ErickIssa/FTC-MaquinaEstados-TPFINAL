@@ -253,3 +253,110 @@ def processaPalavras(palavras,apd):
 #     processaPalavras(palavras,apd)
 
 
+
+
+def inicializaAPN(nomesEstados, alfabetoPilha, alfabetoEntrada, estadosIniciais, estadosFinais, transicoes):
+    #cria o automato
+    apd = APD()
+
+    #atribui alfabetos da pilha e de entrada
+    apd.alfabetoPilha = alfabetoPilha
+    apd.alfabetoEntrada= alfabetoEntrada
+
+    #cria os estados com seus respectivos nomes
+    for nome in nomesEstados:
+        criaEstadoAPD(apd, nome)
+
+    #define os estados iniciais e finais
+    for estado in estadosIniciais:
+        defineEstadoInicial(apd, estado)
+    defineEstadosFinais(apd, estadosFinais)
+
+    #cria as transições
+    for t in transicoes:
+
+        origem = t[0]
+        destino = t[1]
+        simboloLido = t[2]
+        desempilha = t[3]
+        empilha = t[4]
+
+        criaTransicaoAPD(apd, origem, destino, simboloLido, desempilha, empilha)
+
+    return apd
+
+def marcarEstadosIniciais(apd):
+    estadosIniciais = []
+    for estado in apd.estados.values():
+        if estado.inicial:
+            estadosIniciais.append(estado)
+
+    return estadosIniciais
+
+
+def reconhecerPalavraAPN(apd, palavra):
+
+    # limpa a pilha
+    apd.pilha.clear()
+
+    # procura estado inicial
+    estadoAtual = None
+    estados = marcarEstadosIniciais(apd)
+
+    if estados.size() == 0:
+        print("O automato não possui estado inicial")
+        return False
+
+    for estado in estados:
+        estadoAtual = estado
+
+
+        i = 0 #indice do simbolo da palavra lido
+        while True:
+            encontrouTransicaoValida=False
+
+            for t in estadoAtual.transicoes:
+
+                if t.entrada == LAMBDA:
+                    simboloEntradaValido = True
+                else:
+                    if i >= len(palavra):
+                        continue
+                    simboloEntradaValido = (palavra[i] == t.entrada) #compara se o simbolo equivale a entrada da transição
+
+                if not simboloEntradaValido: #se não bate, verifica a próxima transição existente
+                    continue
+
+                if t.desempilha != LAMBDA: #a transicao exige que desempilhe um simbolo
+
+                    #se a pilha esta vazia ou o topo não é o símbolo a ser desempilhado, vai pra próxima transição
+                    if len(apd.pilha) == 0:
+                        continue 
+                    if apd.pilha[-1] != t.desempilha:
+                        continue
+
+                # consome o simbolo de entrada, avança na palavra
+                if t.entrada != LAMBDA:
+                    i += 1
+
+                # desempilha
+                if t.desempilha != LAMBDA:
+                    apd.pilha.pop()
+
+                # empilha
+                if (t.desempilha != LAMBDA):
+                    for simbolo in reversed(t.empilha):
+                        apd.pilha.append(simbolo)
+
+                # avança para o próximo estado
+                estadoAtual = apd.estados[t.destino]
+
+                encontrouTransicaoValida=True
+                break
+
+            if not encontrouTransicaoValida:
+                break
+        if (i == len(palavra) and estadoAtual.final and len(apd.pilha) == 0):
+            break
+    # se consumiu a palavra toda, parou em um estado final e a pilha está vazia, reconhece a palavra
+    return (i == len(palavra) and estadoAtual.final and len(apd.pilha) == 0)
