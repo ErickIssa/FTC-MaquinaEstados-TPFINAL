@@ -5,7 +5,6 @@ estadoInicial = "a"
 estadosFinais = {"a", "d"}
 
 afd = AFD(estados, estadoInicial, estadosFinais)
-afd.criaEstados()
 
 # Transições a partir do estado 'a'
 afd.adicionaTransicao("a", "1", "b")

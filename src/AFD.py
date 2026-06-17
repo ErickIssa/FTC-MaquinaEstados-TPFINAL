@@ -10,7 +10,7 @@ se tiver transição com 0 ou com 1, chamar adicionaTransicao 2x uma pa cada sim
 
 
 
-class Estado:
+class EstadoAFD:
     def __init__(self,nome: str):
         self.nome = nome
         self.transicoes: dict[str, str] = {} # dicionario de transições no formato (simbolo : estadoDestino)
@@ -24,10 +24,11 @@ class AFD:
         self.estadosFinais = estadosFinais #so recebe set, para nao repetir estados
         self.estados = {} #dicionario de estados, onde a chave é o nome do estado e o valor é um objeto do tipo Estado
 
+        self.criaEstados() 
 
     def criaEstados(self): #adiciona os estados que estão em estadoNomes ao dicionário de estados 
         for nome in self.estadoNomes:
-            self.estados[nome] = Estado(nome) #objeto estados[chave de busca no dict] = typecast para Estado(nomeDoEstado)
+            self.estados[nome] = EstadoAFD(nome) #objeto estados[chave de busca no dict] = typecast para Estado(nomeDoEstado)
         return
     
     def adicionaTransicao(self, estadoOrigem: str, simbolo: str, estadoDestino: str):
