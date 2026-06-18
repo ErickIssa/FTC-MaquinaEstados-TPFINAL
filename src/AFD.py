@@ -63,6 +63,12 @@ class AFD:
     
     def processaEntrada(self, entrada: str) -> bool:
         estadoAtual = self.estadoInicial
+
+        if self.estadoInicial == "" or estadoAtual not in self.estadoNomes or estadoAtual not in self.estados:
+            print(f"X") 
+            return False #estado inicial invalido
+        
+
         for simbolo in entrada:
             if simbolo not in self.estados[estadoAtual].transicoes:
                 print(f"X") 

@@ -1,8 +1,8 @@
 from AFD import AFD
 
 estados = {"a", "b", "c", "d", "e"}
-estadoInicial = "a"
-estadosFinais = {"a", "d"}
+estadoInicial = "r"
+estadosFinais = {"a", "e"}
 
 afd = AFD(estados, estadoInicial, estadosFinais)
 
