@@ -1,14 +1,14 @@
 from AFD import AFD
 
 estados = {"a", "b", "c", "d", "e"}
-estadoInicial = "r"
+estadoInicial = "a"
 estadosFinais = {"a", "e"}
 
 afd = AFD(estados, estadoInicial, estadosFinais)
 
 # Transições a partir do estado 'a'
 afd.adicionaTransicao("a", "1", "b")
-afd.adicionaTransicao("a", "0", "d")
+afd.adicionaTransicao("a", "a", "d")
 
 afd.adicionaTransicao("b", "0", "c")
 afd.adicionaTransicao("b", "1", "e")
