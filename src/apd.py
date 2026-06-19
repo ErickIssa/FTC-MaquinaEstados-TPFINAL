@@ -114,7 +114,7 @@ def inicializaAPD(nomesEstados, alfabetoPilha, alfabetoEntrada, estadoInicial, e
 
     return apd
 
-def reconhecerPalavra(apd, palavra):
+def reconhecerPalavraAPD(apd, palavra):
 
     # limpa a pilha
     apd.pilha.clear()
@@ -180,7 +180,7 @@ def reconhecerPalavra(apd, palavra):
 
 def processaPalavras(palavras,apd):
     for palavra in palavras:
-        if reconhecerPalavra(apd, palavra):
+        if reconhecerPalavraAPD(apd, palavra):
             print("OK")
         else:
             print("X")
