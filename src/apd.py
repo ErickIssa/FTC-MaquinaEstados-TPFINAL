@@ -26,6 +26,8 @@ class APD:
     alfabetoEntrada: list[str] = field(default_factory=list)
     alfabetoPilha: list[str] = field(default_factory=list)
     pilha: list[str]=field(default_factory=list)
+
+#OBS: field(default_factory=list) É USADO PARA EVITAR QUE AS INSTÂNCIAS COMPARTILHEM O MESMO OBJETO
     
 #Cria um estado
 def criaEstadoAPD(apd, nome):
@@ -43,7 +45,34 @@ def defineEstadosFinais(apd, estadosFinais):
         apd.estados[nome].final=True
 
 #Cria as transicoes do apd
+# def criaTransicaoAPD(apd, origem, destino, simboloLido, desempilha, empilha):
+#     if empilha == LAMBDA:
+#         empilha = [] #se for lambda, o caractere a empilhar será vazio
+#     else:
+#         empilha = list(empilha)
+
+#     #cria a transição
+#     transicao = Transicao(origem=origem, destino=destino, entrada=simboloLido, desempilha=desempilha, empilha=empilha)
+
+#     #associa transição ao estado de origem
+#     apd.estados[origem].transicoes.append(transicao)
+
 def criaTransicaoAPD(apd, origem, destino, simboloLido, desempilha, empilha):
+    estadoOrigem = apd.estados[origem]
+
+    # verifica se a nova transição é compatível com alguma transição já existente. Se for, nao cria a nova transicao
+    for transicaoExistente in estadoOrigem.transicoes:
+        
+        #duas transicoes com mesma entrada,ou duas transicoes sendo uma delas com entrada lambda
+        conflitoEntrada = (simboloLido == transicaoExistente.entrada or simboloLido == LAMBDA or transicaoExistente.entrada == LAMBDA)
+        
+        #desempilham a mesma coisa, ou alguma desempilha lambda
+        conflitoPilha = (desempilha == transicaoExistente.desempilha or desempilha == LAMBDA or transicaoExistente.desempilha == LAMBDA)
+        
+        if conflitoEntrada and conflitoPilha:
+            print("erro: transicoes compativeis")
+            return
+
     if empilha == LAMBDA:
         empilha = [] #se for lambda, o caractere a empilhar será vazio
     else:
@@ -53,7 +82,8 @@ def criaTransicaoAPD(apd, origem, destino, simboloLido, desempilha, empilha):
     transicao = Transicao(origem=origem, destino=destino, entrada=simboloLido, desempilha=desempilha, empilha=empilha)
 
     #associa transição ao estado de origem
-    apd.estados[origem].transicoes.append(transicao)
+    estadoOrigem.transicoes.append(transicao)
+
 
 def inicializaAPD(nomesEstados, alfabetoPilha, alfabetoEntrada, estadoInicial, estadosFinais, transicoes):
     #cria o automato
