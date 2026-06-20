@@ -19,141 +19,176 @@ class Estado:
     final: bool = False
     transicoes: list[Transicao] = field(default_factory=list) #lista de transicoes que saem desse estado
 
+#OBS: field(default_factory=list) É USADO PARA EVITAR QUE AS INSTÂNCIAS COMPARTILHEM O MESMO OBJETO
+
 #estrutura que define o APD
-@dataclass
 class APD:
-    estados: dict[str, Estado] = field(default_factory=dict) #lista de estados
-    alfabetoEntrada: list[str] = field(default_factory=list)
-    alfabetoPilha: list[str] = field(default_factory=list)
-    pilha: list[str]=field(default_factory=list)
-    
-#Cria um estado
-def criaEstadoAPD(apd, nome):
+    def __init__(self):
+        self.estados: dict[str, Estado] = {}
+        self.alfabetoEntrada: list[str] = []
+        self.alfabetoPilha: list[str] = []
+        self.pilha: list[str] = []
 
-    estado=Estado(nome=nome)
-    apd.estados[nome] = estado
+        
+    #Cria um estado
+    def criaEstadoAPD(self, nome):
 
-#Define o estado inicial do apd
-def defineEstadoInicial(apd, nomeEstado):
-    apd.estados[nomeEstado].inicial = True
+        estado=Estado(nome=nome)
+        self.estados[nome] = estado
 
-#Define os estados finais do apd
-def defineEstadosFinais(apd, estadosFinais):
-    for nome in estadosFinais:
-        apd.estados[nome].final=True
+    #Define o estado inicial do apd
+    def defineEstadoInicial(self, nomeEstado):
+        self.estados[nomeEstado].inicial = True
 
-#Cria as transicoes do apd
-def criaTransicaoAPD(apd, origem, destino, simboloLido, desempilha, empilha):
-    if empilha == LAMBDA:
-        empilha = [] #se for lambda, o caractere a empilhar será vazio
-    else:
-        empilha = list(empilha)
+    #Define os estados finais do apd
+    def defineEstadosFinais(self, estadosFinais):
+        for nome in estadosFinais:
+            self.estados[nome].final=True
 
-    #cria a transição
-    transicao = Transicao(origem=origem, destino=destino, entrada=simboloLido, desempilha=desempilha, empilha=empilha)
+    #Cria as transicoes do apd
+    # def criaTransicaoAPD(self, origem, destino, simboloLido, desempilha, empilha):
+    #     if empilha == LAMBDA:
+    #         empilha = [] #se for lambda, o caractere a empilhar será vazio
+    #     else:
+    #         empilha = list(empilha)
 
-    #associa transição ao estado de origem
-    apd.estados[origem].transicoes.append(transicao)
+    #     #cria a transição
+    #     transicao = Transicao(origem=origem, destino=destino, entrada=simboloLido, desempilha=desempilha, empilha=empilha)
 
-def inicializaAPD(nomesEstados, alfabetoPilha, alfabetoEntrada, estadoInicial, estadosFinais, transicoes):
-    #cria o automato
-    apd = APD()
+    #     #associa transição ao estado de origem
+    #     self.estados[origem].transicoes.append(transicao)
 
-    #atribui alfabetos da pilha e de entrada
-    apd.alfabetoPilha = alfabetoPilha
-    apd.alfabetoEntrada= alfabetoEntrada
+    def criaTransicaoAPD(self, origem, destino, simboloLido, desempilha, empilha):
 
-    #cria os estados com seus respectivos nomes
-    for nome in nomesEstados:
-        criaEstadoAPD(apd, nome)
+        if origem not in self.estados:
+            print(f"estado de origem '{origem}' não existe")
+            return
+        if destino not in self.estados:
+            print(f"estado de destino '{destino}' não existe")
+            return
 
-    #define os estados iniciais e finais
-    defineEstadoInicial(apd, estadoInicial)
-    defineEstadosFinais(apd, estadosFinais)
+        estadoOrigem = self.estados[origem]
 
-    #cria as transições
-    for t in transicoes:
+        # verifica se a nova transição é compatível com alguma transição já existente. Se for, nao cria a nova transicao
+        for transicaoExistente in estadoOrigem.transicoes:
+            
+            #duas transicoes com mesma entrada,ou duas transicoes sendo uma delas com entrada lambda
+            conflitoEntrada = (simboloLido == transicaoExistente.entrada or simboloLido == LAMBDA or transicaoExistente.entrada == LAMBDA)
+            
+            #desempilham a mesma coisa, ou alguma desempilha lambda
+            conflitoPilha = (desempilha == transicaoExistente.desempilha or desempilha == LAMBDA or transicaoExistente.desempilha == LAMBDA)
+            
+            if conflitoEntrada and conflitoPilha:
+                print("erro: transicoes compativeis")
+                return
 
-        origem = t[0]
-        destino = t[1]
-        simboloLido = t[2]
-        desempilha = t[3]
-        empilha = t[4]
-
-        criaTransicaoAPD(apd, origem, destino, simboloLido, desempilha, empilha)
-
-    return apd
-
-def reconhecerPalavra(apd, palavra):
-
-    # limpa a pilha
-    apd.pilha.clear()
-
-    # procura estado inicial
-    estadoAtual = None
-    for estado in apd.estados.values():
-        if estado.inicial:
-            estadoAtual = estado
-            break
-
-    if estadoAtual is None:
-        print("O automato não possui estado inicial")
-        return False
-
-    i = 0 #indice do simbolo da palavra lido
-    while True:
-        encontrouTransicaoValida=False
-
-        for t in estadoAtual.transicoes:
-
-            if t.entrada == LAMBDA:
-                simboloEntradaValido = True
-            else:
-                if i >= len(palavra):
-                    continue
-                simboloEntradaValido = (palavra[i] == t.entrada) #compara se o simbolo equivale a entrada da transição
-
-            if not simboloEntradaValido: #se não bate, verifica a próxima transição existente
-                continue
-
-            if t.desempilha != LAMBDA: #a transicao exige que desempilhe um simbolo
-
-                #se a pilha esta vazia ou o topo não é o símbolo a ser desempilhado, vai pra próxima transição
-                if len(apd.pilha) == 0:
-                    continue 
-                if apd.pilha[-1] != t.desempilha:
-                    continue
-
-            # consome o simbolo de entrada, avança na palavra
-            if t.entrada != LAMBDA:
-                i += 1
-
-            # desempilha
-            if t.desempilha != LAMBDA:
-                apd.pilha.pop()
-
-            # empilha
-            for simbolo in reversed(t.empilha):
-                apd.pilha.append(simbolo)
-
-            # avança para o próximo estado
-            estadoAtual = apd.estados[t.destino]
-
-            encontrouTransicaoValida=True
-            break
-
-        if not encontrouTransicaoValida:
-            break
-
-    # se consumiu a palavra toda, parou em um estado final e a pilha está vazia, reconhece a palavra
-    return (i == len(palavra) and estadoAtual.final and len(apd.pilha) == 0)
-
-def processaPalavras(palavras,apd):
-    for palavra in palavras:
-        if reconhecerPalavra(apd, palavra):
-            print("OK")
+        if empilha == LAMBDA:
+            empilha = [] #se for lambda, o caractere a empilhar será vazio
         else:
-            print("X")
+            empilha = list(empilha)
+
+        #cria a transição
+        transicao = Transicao(origem=origem, destino=destino, entrada=simboloLido, desempilha=desempilha, empilha=empilha)
+
+        #associa transição ao estado de origem
+        estadoOrigem.transicoes.append(transicao)
+
+
+    def inicializaAPD(self, nomesEstados, alfabetoPilha, alfabetoEntrada, estadoInicial, estadosFinais, transicoes):
+
+        #atribui alfabetos da pilha e de entrada
+        self.alfabetoPilha = alfabetoPilha
+        self.alfabetoEntrada= alfabetoEntrada
+
+        #cria os estados com seus respectivos nomes
+        for nome in nomesEstados:
+            self.criaEstadoAPD(nome)
+
+        #define os estados iniciais e finais
+        self.defineEstadoInicial(estadoInicial)
+        self.defineEstadosFinais(estadosFinais)
+
+        #cria as transições
+        for t in transicoes:
+
+            origem = t[0]
+            destino = t[1]
+            simboloLido = t[2]
+            desempilha = t[3]
+            empilha = t[4]
+
+            self.criaTransicaoAPD(origem, destino, simboloLido, desempilha, empilha)
+
+    def reconhecerPalavraAPD(self, palavra):
+
+        # limpa a pilha
+        self.pilha.clear()
+
+        # procura estado inicial
+        estadoAtual = None
+        for estado in self.estados.values():
+            if estado.inicial:
+                estadoAtual = estado
+                break
+
+        if estadoAtual is None:
+            print("O automato não possui estado inicial")
+            return False
+
+        i = 0 #indice do simbolo da palavra lido
+        while True:
+            encontrouTransicaoValida=False
+
+            for t in estadoAtual.transicoes:
+
+                if t.entrada == LAMBDA:
+                    simboloEntradaValido = True
+                else:
+                    if i >= len(palavra):
+                        continue
+                    simboloEntradaValido = (palavra[i] == t.entrada) #compara se o simbolo equivale a entrada da transição
+
+                if not simboloEntradaValido: #se não bate, verifica a próxima transição existente
+                    continue
+
+                if t.desempilha != LAMBDA: #a transicao exige que desempilhe um simbolo
+
+                    #se a pilha esta vazia ou o topo não é o símbolo a ser desempilhado, vai pra próxima transição
+                    if not self.pilha:
+                        continue 
+                    if self.pilha[-1] != t.desempilha:
+                        continue
+
+                # consome o simbolo de entrada, avança na palavra
+                if t.entrada != LAMBDA:
+                    i += 1
+
+                # desempilha
+                if t.desempilha != LAMBDA:
+                    self.pilha.pop()
+
+                # empilha
+                for simbolo in reversed(t.empilha):
+                    self.pilha.append(simbolo)
+
+                # avança para o próximo estado
+                estadoAtual = self.estados[t.destino]
+
+                encontrouTransicaoValida=True
+                break
+
+            if not encontrouTransicaoValida:
+                break
+
+        # se consumiu a palavra toda, parou em um estado final e a pilha está vazia, reconhece a palavra
+        return (i == len(palavra) and estadoAtual.final and len(self.pilha) == 0)
+
+    def processaPalavras(self, palavras):
+        for palavra in palavras:
+            if self.reconhecerPalavraAPD(palavra):
+                print("OK")
+            else:
+                print("X")
 
 
 
@@ -219,7 +254,8 @@ def processaPalavras(palavras,apd):
 #                 # Guarda a palavra (inclusive vazia)
 #                 palavras.append(linha)
 
-#     apd = inicializaAPD(
+#     apd = APD()
+#     apd.inicializaAPD(
 #         nomesEstados,
 #         alfabetoPilha,
 #         alfabetoEntrada,
@@ -250,4 +286,6 @@ def processaPalavras(palavras,apd):
 #         print()
 
 #     print("Resultado do reconhecimento:")
-#     processaPalavras(palavras,apd)
+#     apd.processaPalavras(palavras)
+
+
