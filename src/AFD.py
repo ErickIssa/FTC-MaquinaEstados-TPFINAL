@@ -64,6 +64,10 @@ class AFD:
     def processaEntrada(self, entrada: str) -> bool:
         estadoAtual = self.estadoInicial
 
+        if not isinstance(entrada, str): #atributo boleano passado para a func
+            print("X")
+            return False
+
         if self.estadoInicial == "" or estadoAtual not in self.estadoNomes or estadoAtual not in self.estados:
             print(f"X") 
             return False #estado inicial invalido
