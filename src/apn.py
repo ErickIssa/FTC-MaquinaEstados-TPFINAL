@@ -1,7 +1,7 @@
-from dataclasses import dataclass,field
+from dataclasses import dataclass, field
 
 LAMBDA = "\\"
-
+limite_Computacoes = 10000
 #estrutura que define uma transicao e seus atributos
 @dataclass
 class Transicao:
@@ -17,184 +17,164 @@ class Estado:
     nome: str
     inicial: bool = False
     final: bool = False
-    transicoes: list[Transicao] = field(default_factory=list) #lista de transicoes que saem desse estado
+    transicoes: list[Transicao] = field(default_factory=list)
 
 #estrutura que define o APN
 @dataclass
 class APN:
-    estados: dict[str, Estado] = field(default_factory=dict) #lista de estados
+    estados: dict[str, Estado] = field(default_factory=dict)
     alfabetoEntrada: list[str] = field(default_factory=list)
     alfabetoPilha: list[str] = field(default_factory=list)
-    pilha: list[str]=field(default_factory=list)
-    
+
 #Cria um estado
-def criaEstadoAPN(apn, nome):
+def criaEstadoAPN(apn: APN, nome: str) -> None:
+    apn.estados[nome] = Estado(nome=nome)
 
-    estado=Estado(nome=nome)
-    apn.estados[nome] = estado
-
-#Define o estado inicial do APN
-def defineEstadoInicial(APN, nomeEstado):
-    APN.estados[nomeEstado].inicial = True
+#Define se um estado é ou não inicial
+def defineEstadoInicial(apn: APN, nomeEstado: str) -> None:
+    apn.estados[nomeEstado].inicial = True
 
 #Define os estados finais do APN
-def defineEstadosFinais(APN, estadosFinais):
+def defineEstadosFinais(apn: APN, estadosFinais: list[str]) -> None:
     for nome in estadosFinais:
-        APN.estados[nome].final=True
+        apn.estados[nome].final = True
 
 #Cria as transicoes do APN
-def criaTransicaoAPN(APN, origem, destino, simboloLido, desempilha, empilha):
+def criaTransicaoAPN(apn: APN, origem: str, destino: str, simboloLido: str, desempilha: str, empilha: str | list[str],):
     if empilha == LAMBDA:
-        empilha = [] #se for lambda, o caractere a empilhar será vazio
+        simbolos_empilhados: list[str] = []#se for lambda, o caractere a empilhar será vazio
     else:
-        empilha = list(empilha)
-
+        simbolos_empilhados = list(empilha)
     #cria a transição
-    transicao = Transicao(origem=origem, destino=destino, entrada=simboloLido, desempilha=desempilha, empilha=empilha)
-
+    transicao = Transicao(origem=origem, destino=destino, entrada=simboloLido, desempilha=desempilha, empilha=simbolos_empilhados,
+    )
     #associa transição ao estado de origem
-    APN.estados[origem].transicoes.append(transicao)
-
-def inicializaAPN(nomesEstados, alfabetoPilha, alfabetoEntrada, estadoInicial, estadosFinais, transicoes):
-    #cria o automato
-    APN = APN()
-
-    #atribui alfabetos da pilha e de entrada
-    APN.alfabetoPilha = alfabetoPilha
-    APN.alfabetoEntrada= alfabetoEntrada
-
-    #cria os estados com seus respectivos nomes
-    for nome in nomesEstados:
-        criaEstadoAPN(APN, nome)
-
-    #define os estados iniciais e finais
-    defineEstadoInicial(APN, estadoInicial)
-    defineEstadosFinais(APN, estadosFinais)
-
-    #cria as transições
-    for t in transicoes:
-
-        origem = t[0]
-        destino = t[1]
-        simboloLido = t[2]
-        desempilha = t[3]
-        empilha = t[4]
-
-        criaTransicaoAPN(APN, origem, destino, simboloLido, desempilha, empilha)
-
-    return APN
+    apn.estados[origem].transicoes.append(transicao)
 
 
 def inicializaAPN(nomesEstados, alfabetoPilha, alfabetoEntrada, estadosIniciais, estadosFinais, transicoes):
-    #cria o automato
-    APN = APN()
+    apn = APN()
+    apn.alfabetoPilha = alfabetoPilha
+    apn.alfabetoEntrada = alfabetoEntrada
 
-    #atribui alfabetos da pilha e de entrada
-    APN.alfabetoPilha = alfabetoPilha
-    APN.alfabetoEntrada= alfabetoEntrada
-
-    #cria os estados com seus respectivos nomes
     for nome in nomesEstados:
-        criaEstadoAPN(APN, nome)
+        criaEstadoAPN(apn, nome)
 
-    #define os estados iniciais e finais
     for estado in estadosIniciais:
-        defineEstadoInicial(APN, estado)
-    defineEstadosFinais(APN, estadosFinais)
+        defineEstadoInicial(apn, estado)
 
-    #cria as transições
-    for t in transicoes:
+    defineEstadosFinais(apn, estadosFinais)
 
-        origem = t[0]
-        destino = t[1]
-        simboloLido = t[2]
-        desempilha = t[3]
-        empilha = t[4]
+    for origem, destino, simboloLido, desempilha, empilha in transicoes:
+        criaTransicaoAPN(apn, origem, destino, simboloLido, desempilha, empilha)
 
-        criaTransicaoAPN(APN, origem, destino, simboloLido, desempilha, empilha)
+    return apn
 
-    return APN
 
-def marcarEstadosIniciais(APN):
+def marcarEstadosIniciais(apn):
     estadosIniciais = []
     for estado in APN.estados.values():
         if estado.inicial:
             estadosIniciais.append(estado)
-
     return estadosIniciais
 
 
-def reconhecerPalavraAPN(APN, palavra):
+def aplicaTransicao(transicao, palavra,indice, pilha):
+    novo_indice = indice
 
-    # limpa a pilha
-    APN.pilha.clear()
+    # Verifica símbolo da entrada.
+    if transicao.entrada != LAMBDA:
+        if indice >= len(palavra):
+            return None
+        if palavra[indice] != transicao.entrada:
+            return None
+        novo_indice += 1
 
-    # procura estado inicial
-    estadoAtual = None
-    estados = marcarEstadosIniciais(APN)
+    # Copia a pilha
+    nova_pilha = pilha.copy()
 
-    if estados.size() == 0:
+    # Verifica e executa desempilhamento.
+    if transicao.desempilha != LAMBDA:
+        if not nova_pilha:
+            return None
+        if nova_pilha[-1] != transicao.desempilha:
+            return None
+        nova_pilha.pop()
+
+    # Executa empilhamento. O topo da pilha é o fim da lista, assim invertemos a ordem de inserção.
+    for simbolo in reversed(transicao.empilha):
+        nova_pilha.append(simbolo)
+
+    return novo_indice, nova_pilha
+
+# Boa parte da lógica de manter o controle da pilha foi feita com auxilio do chatGPT, 
+# por isso tem umas funções e lógicas diferentes do resto do arquivo e está bem mais comentado, 
+# pois fui adicionando informações para eu mesmo entender =D
+# Outro detalhe, essa maquina permite o reconhecimento padrão (palavra consumida, pilha vazia e em um estado final)
+# Mas também permite que seja reconhecida por pilha vazia (palavra consumida e pilha vazia)
+# Por padrão, se não for especificado, ela executa considerando o reconhecimento padrão.
+def reconhecerPalavraAPN(apn, palavra, exigir_estado_final: bool = True):
+    estados_iniciais = marcarEstadosIniciais(apn)
+
+    if len(estados_iniciais) == 0:
         print("O automato não possui estado inicial")
         return False
 
-    for estado in estados:
-        estadoAtual = estado
+    # Cada item é uma configuração: (estado_atual, índice_lido, pilha_atual).
+        #Em qual estado estou?
+        #Qual posição da palavra eu já li?
+        #Como está a pilha neste caminho?
+    # A pilha de cada configuração é independente.
+    fronteira: list[tuple[Estado, int, list[str]]] = [
+        (estado, 0, []) for estado in estados_iniciais
+    ]
+
+    visitados: set[tuple[str, int, tuple[str, ...]]] = set()
+    configuracoes_testadas = 0
+
+    # percorre enquanto houver diferentes configurações (caminhos) possiveis nao testados.
+    while fronteira:
+
+        # escolhe uma configuração e remove da lista
+        # cada pilha pertence a apenas uma configuração
+        estado_atual, indice, pilha = fronteira.pop()
+        configuracoes_testadas += 1
+
+        if configuracoes_testadas > limite_Computacoes:
+            # Evita loop infinito em APNs.
+            return False
+
+        chave = (estado_atual.nome, indice, tuple(pilha))
+        #Se uma configuração já foi testada antes, não precisa testar de novo.
+        if chave in visitados:
+            continue
+        visitados.add(chave)
+
+        # Verifica se a configuração atual levou ao reconhecimento da palavra
+        palavra_lida = indice == len(palavra)
+        pilha_vazia = len(pilha) == 0
+        estado_final_ok = (not exigir_estado_final) or estado_atual.final
+
+        if palavra_lida and pilha_vazia and estado_final_ok:
+            return True
+
+        # Coloca as próximas configurações na pilha de busca.
+        # reversed preserva a ordem das transições quando usamos pop().
+        for transicao in reversed(estado_atual.transicoes):
+            resultado = aplicaTransicao(transicao, palavra, indice, pilha)
+            if resultado is None:
+                continue
+
+            novo_indice, nova_pilha = resultado
+            novo_estado = apn.estados[transicao.destino]
+            fronteira.append((novo_estado, novo_indice, nova_pilha))
+
+    return False
 
 
-        i = 0 #indice do simbolo da palavra lido
-        while True:
-            encontrouTransicaoValida=False
-
-            for t in estadoAtual.transicoes:
-
-                if t.entrada == LAMBDA:
-                    simboloEntradaValido = True
-                else:
-                    if i >= len(palavra):
-                        continue
-                    simboloEntradaValido = (palavra[i] == t.entrada) #compara se o simbolo equivale a entrada da transição
-
-                if not simboloEntradaValido: #se não bate, verifica a próxima transição existente
-                    continue
-
-                if t.desempilha != LAMBDA: #a transicao exige que desempilhe um simbolo
-
-                    #se a pilha esta vazia ou o topo não é o símbolo a ser desempilhado, vai pra próxima transição
-                    if len(APN.pilha) == 0:
-                        continue 
-                    if APN.pilha[-1] != t.desempilha:
-                        continue
-
-                # consome o simbolo de entrada, avança na palavra
-                if t.entrada != LAMBDA:
-                    i += 1
-
-                # desempilha
-                if t.desempilha != LAMBDA:
-                    APN.pilha.pop()
-
-                # empilha
-                if (t.desempilha != LAMBDA):
-                    for simbolo in reversed(t.empilha):
-                        APN.pilha.append(simbolo)
-
-                # avança para o próximo estado
-                estadoAtual = APN.estados[t.destino]
-
-                encontrouTransicaoValida=True
-                break
-
-            if not encontrouTransicaoValida:
-                break
-        if (i == len(palavra) and estadoAtual.final and len(APN.pilha) == 0):
-            break
-    # se consumiu a palavra toda, parou em um estado final e a pilha está vazia, reconhece a palavra
-    return (i == len(palavra) and estadoAtual.final and len(APN.pilha) == 0)
-
-def processaPalavrasAPN(palavras,APN):
+def processaPalavrasAPN(palavras, apn):
     for palavra in palavras:
-        if reconhecerPalavraAPN(APN, palavra):
+        if reconhecerPalavraAPN(apn, palavra):
             print("OK")
         else:
             print("X")
-
