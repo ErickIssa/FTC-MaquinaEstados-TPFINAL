@@ -1,3 +1,4 @@
+@MT
 Q: A B X
 S: 10
 G: ab
