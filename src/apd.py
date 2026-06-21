@@ -146,6 +146,7 @@ class APD:
                         continue 
                     if pilha[-1] != t.desempilha:
                         continue
+                        
 
                 #se chegou aqui, significa que a transicao pode acontecer
                 # consome o simbolo de entrada(avança na palavra)
@@ -169,8 +170,8 @@ class APD:
             if not encontrouTransicaoValida:
                 break
 
-        # se consumiu a palavra toda, parou em um estado final e a pilha está vazia, reconhece a palavra
-        return (i == len(palavra) and estadoAtual.final and len(pilha) == 0)
+        # se consumiu a palavra toda e parou em um estado final, reconhece a palavra
+        return (i == len(palavra) and estadoAtual.final)
 
     def processaPalavras(self, palavras):
         for palavra in palavras:
