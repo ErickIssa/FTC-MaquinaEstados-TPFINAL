@@ -1,4 +1,9 @@
-from leituraArquivos import leArquivo
+from .leituraArquivos import leArquivo
+from .AFN import AFN, inicializaAFN, processaPalavrasAFN
+from .apn import APN, inicializaAPN
+from .AFD import AFD
+from .apd import APD
+from .turing import *
 def main():
     VERDE = "\033[92m"
     AMARELO = "\033[93m"
@@ -27,8 +32,8 @@ def main():
         resultadoLeitura = None
         x = int(input(f"\n{VERDE}Escolha sua jogada (1 ou 2): {RESET}"))
         if x == 2:
-            print(f"\n{AZUL}Escalação de Máquinas disponíveis:{RESET}")
-            print("1 - @AFD(Goleiro)\n2 - @AFN(Lateral)\n3 - @APD(Zagueiro)\n4 - @APNP(Ponta)\n5 - @APNPV(Volante)\n6 - @MT(Centroavante)7 - @ALL(Segundo Atacante)")
+            print(f"\n{AZUL}Escalação de Máquinas disponíveis(digite @ seguido do nome da maquina):{RESET}")
+            print("1 - @AFD\n2 - @AFN\n3 - @APD\n4 - @APNP\n5 - @APNPV\n6 - @MT\n7 - @ALL")
 
             op = str(input(f"{AMARELO}Digite o nome da máquina escalada: {RESET}"))
             caminho = input(f"{AMARELO}Digite o caminho do arquivo de entrada: {RESET}")
@@ -45,7 +50,8 @@ def main():
         if resultadoLeitura is not None:
 
             maqCriada, listaEntradas, tipoMaq = resultadoLeitura
-
+            print(maqCriada)
+            print(listaEntradas)
             print(f"\n{VERDE}Rola a bola! A máquina {tipoMaq} entrou em campo.{RESET}\n")
 
             for entrada in listaEntradas:
@@ -58,16 +64,16 @@ def main():
                     maqCriada.aceita(entrada_limpa)
 
                 elif tipoMaq == "@APD":
-                    maqCriada.reconhecerPalavraAPD(entrada_limpa)
+                    maqCriada.processaPalavras(entrada_limpa)
 
                 elif tipoMaq == "@AFN":
-                    reconhecerPalavraAFN(maqCriada, entrada_limpa)
+                    processaPalavrasAFN(entrada_limpa,maqCriada)
 
                 elif tipoMaq == "@APNP":
-                    reconhecerPalavraAPN(maqCriada, entrada_limpa, exigir_estado_final=True)
+                    processaPalavrasAPN(entrada_limpa,maqCriada, exigir_estado_final=True)
 
                 elif tipoMaq == "@APNPV":
-                    reconhecerPalavraAPN(maqCriada, entrada_limpa, exigir_estado_final=False)
+                    processaPalavrasAPN(entrada_limpa, maqCriada, exigir_estado_final=False)
 
         else:
             print(f"\n{VERMELHO}[VAR] Falha na escalação! O arquivo não pôde ser lido corretamente.{RESET}")
