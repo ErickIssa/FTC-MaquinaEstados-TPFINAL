@@ -1,14 +1,18 @@
 from dataclasses import dataclass, field
 
 LAMBDA = "\\"
-limite_Computacoes = 10000
-#estrutura que define uma transicao e seus atributos
+LIMITE_COMPUTACOES = 10000
+
+
+# Estrutura que define uma transição e seus atributos.
 @dataclass
 class Transicao:
     origem: str
     destino: str
     entrada: str
-#estrutura que define um estado e seus atributos
+
+
+# Estrutura que define um estado e seus atributos.
 @dataclass
 class Estado:
     nome: str
@@ -16,33 +20,43 @@ class Estado:
     final: bool = False
     transicoes: list[Transicao] = field(default_factory=list)
 
-#estrutura que define o APN
+
+# Estrutura que define o AFN.
 @dataclass
 class AFN:
     estados: dict[str, Estado] = field(default_factory=dict)
     alfabetoEntrada: list[str] = field(default_factory=list)
 
-#Cria um estado
-def criaEstadoAFN(afn, nome):
+
+# Cria um estado.
+def criaEstadoAFN(afn: AFN, nome: str):
     afn.estados[nome] = Estado(nome=nome)
 
-#Define se um estado é ou não inicial
+
+# Define se um estado é ou não inicial.
 def defineEstadoInicial(afn, nomeEstado):
     afn.estados[nomeEstado].inicial = True
 
-#Define os estados finais do APN
-def defineEstadosFinais(afn, estadosFinais):
+
+# Define os estados finais do AFN.
+def defineEstadosFinais(afn: AFN, estadosFinais: list[str]) -> None:
     for nome in estadosFinais:
         afn.estados[nome].final = True
 
-#Cria as transicoes do APN
-def criaTransicaoAPN(afn, origem, destino, simboloLido):
-    transicao = Transicao(origem=origem, destino=destino, entrada=simboloLido)
-    #associa transição ao estado de origem
+
+# Cria uma transição do AFN.
+def criaTransicaoAFN(afn, origem, destino, simboloLido):
+    if simboloLido != LAMBDA and simboloLido not in afn.alfabetoEntrada:
+        raise ValueError(
+            f"Símbolo de entrada inválido: {simboloLido}. " )
+
+    transicao = Transicao(origem=origem, destino=destino, entrada=simboloLido,)
+
+    # Associa a transição ao estado de origem.
     afn.estados[origem].transicoes.append(transicao)
 
 
-def inicializaAPN(nomesEstados,alfabetoEntrada, estadosIniciais, estadosFinais, transicoes):
+def inicializaAFN(nomesEstados, alfabetoEntrada, estadosIniciais, estadosFinais,transicoes):
     afn = AFN()
     afn.alfabetoEntrada = alfabetoEntrada
 
@@ -55,57 +69,104 @@ def inicializaAPN(nomesEstados,alfabetoEntrada, estadosIniciais, estadosFinais, 
     defineEstadosFinais(afn, estadosFinais)
 
     for origem, destino, simboloLido in transicoes:
-        criaTransicaoAPN(afn, origem, destino, simboloLido)
+        criaTransicaoAFN(afn, origem, destino, simboloLido)
 
     return afn
 
 
-def reconhecerPalavraAPN(apn, palavra):
-    estadoAtual = None
-    for estado in apn.estados.values():
+def marcarEstadosIniciais(afn: AFN) -> list[Estado]:
+    estadosIniciais = []
+
+    for estado in afn.estados.values():
         if estado.inicial:
-            estadoAtual = estado
-            break
-    if estadoAtual is None:
+            estadosIniciais.append(estado)
+
+    return estadosIniciais
+
+
+def aplicaTransicaoAFN(transicao, palavra, indice):
+    novo_indice = indice
+
+    # Transição lambda não consome símbolo da palavra.
+    if transicao.entrada == LAMBDA:
+        return novo_indice
+
+    # Se a palavra já acabou, não há símbolo para consumir.
+    if indice >= len(palavra):
+        return None
+
+    # A transição só é válida se o símbolo atual bater com a entrada da transição.
+    if palavra[indice] != transicao.entrada:
+        return None
+
+    # Consome um símbolo da palavra.
+    novo_indice += 1
+
+    return novo_indice
+
+
+def reconhecerPalavraAFN(afn, palavra):
+    estados_iniciais = marcarEstadosIniciais(afn)
+
+    if len(estados_iniciais) == 0:
         print("O automato não possui estado inicial")
         return False
+    # Foi reutilizado a mesma lógica da APN, porém aqui
+    # Cada item da fronteira é uma configuração:
+    # (estado_atual, indice_lido)
+    #
+    fronteira: list[tuple[Estado, int]] = [
+        (estado, 0) for estado in estados_iniciais
+    ]
 
-    i = 0
-    while True:
-        encontrouTransicaoValida=False
+    # Evita testar a mesma configuração infinitas vezes,
+    # principalmente quando existem ciclos com transições lambda.
+    visitados: set[tuple[str, int]] = set()
 
-        for t in estadoAtual.transicoes:
+    configuracoes_testadas = 0
 
-            if t.entrada == LAMBDA:
-                simboloEntradaValido = True
-            else:
-                if i >= len(palavra):
-                    continue
-                simboloEntradaValido = (palavra[i] == t.entrada) #compara se o simbolo equivale a entrada da transição
+    while fronteira:
+        estado_atual, indice = fronteira.pop()
+        configuracoes_testadas += 1
 
-            if not simboloEntradaValido: #se não bate, verifica a próxima transição existente
+        if configuracoes_testadas > LIMITE_COMPUTACOES:
+            return False
+
+        chave = (estado_atual.nome, indice)
+
+        if chave in visitados:
+            continue
+
+        visitados.add(chave)
+
+        # Reconhecimento de AFN:
+        # a palavra foi completamente lida e o estado atual é final.
+        palavra_lida = indice == len(palavra)
+
+        if palavra_lida and estado_atual.final:
+            return True
+
+        # Testa todas as transições possíveis a partir do estado atual.
+        # O reversed é usado para preservar a ordem original das transições
+        # quando usamos fronteira.pop().
+        for transicao in reversed(estado_atual.transicoes):
+            novo_indice = aplicaTransicaoAFN(transicao, palavra, indice)
+
+            if novo_indice is None:
                 continue
 
-            # consome o simbolo de entrada, avança na palavra
-            if t.entrada != LAMBDA:
-                i += 1
+            novo_estado = afn.estados[transicao.destino]
 
-            # avança para o próximo estado
-            estadoAtual = apn.estados[t.destino]
+            # Guarda um novo caminho possível para ser testado depois.
+            fronteira.append((novo_estado, novo_indice))
 
-            encontrouTransicaoValida=True
-            break
-
-        if not encontrouTransicaoValida:
-            break
-
-    # se consumiu a palavra toda, parou em um estado final e a pilha está vazia, reconhece a palavra
-    return (i == len(palavra) and estadoAtual.final)
+    return False
 
 
-def processaPalavrasAFN(palavras, afn):
+def processaPalavrasAFN(palavras: list[str], afn: AFN) -> None:
     for palavra in palavras:
-        if reconhecerPalavraAPN(afn, palavra):
+        if reconhecerPalavraAFN(afn, palavra):
             print("OK")
         else:
             print("X")
+
