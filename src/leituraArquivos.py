@@ -173,7 +173,7 @@ def leMaquinaDeTuring(arquivo, EhALL: bool):
         return None
             
     #pega transicoes
-    transicoes:list 
+    transicoes = []
     transicao = ['a','b','d','e','f'] # lido, escrito, sentido, estado destino, estado origem
     while(True):
 
