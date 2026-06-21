@@ -58,16 +58,16 @@ def main():
                     maqCriada.aceita(entrada_limpa)
 
                 elif tipoMaq == "@APD":
-                    maqCriada.processaPalavras(entrada_limpa)
+                    maqCriada.reconhecerPalavraAPD(entrada_limpa)
 
                 elif tipoMaq == "@AFN":
                     reconhecerPalavraAFN(maqCriada, entrada_limpa)
 
                 elif tipoMaq == "@APNP":
-                    processaPalavrasAPN(maqCriada, entrada_limpa, exigir_estado_final=True)
+                    reconhecerPalavraAPN(maqCriada, entrada_limpa, exigir_estado_final=True)
 
                 elif tipoMaq == "@APNPV":
-                    processaPalavrasAPN(maqCriada, entrada_limpa, exigir_estado_final=False)
+                    reconhecerPalavraAPN(maqCriada, entrada_limpa, exigir_estado_final=False)
 
         else:
             print(f"\n{VERMELHO}[VAR] Falha na escalação! O arquivo não pôde ser lido corretamente.{RESET}")
