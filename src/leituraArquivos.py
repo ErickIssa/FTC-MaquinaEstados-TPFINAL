@@ -224,6 +224,7 @@ def leMaquinaDeTuring(arquivo, EhALL: bool):
                 continue
             else:
                 print("O ARQUIVO DE ENTRADA ESTA ERRADO")
+                return None,None
             
     estadosInstanciados = []
     for i in estados:
@@ -255,7 +256,7 @@ def leMaquinaDeTuring(arquivo, EhALL: bool):
             
     return mt, entradas
 
-def leAPD(arquivo):
+def leAP(arquivo, ehDeterminista: bool, ReconhecePorPilhaVazia:bool):
     estados = leEstados(arquivo)
     if(estados is None):
         return None, None
@@ -267,11 +268,16 @@ def leAPD(arquivo):
     alfabetoPilha = leAlfabeto(arquivo,True,False)
     if(alfabetoPilha is None):
         return None, None
-            
-    inicial = leEstadoInicial(arquivo, estados)
-    if(inicial is None):
-        return None, None
-            
+    
+    if(ehDeterminista):
+        inicial = leEstadoInicial(arquivo, estados)
+        if(inicial is None):
+            return None, None
+    else:
+        iniciais = leEstadosIniciais(arquivo,estados)
+        if(iniciais is None):
+            return None, None
+        
     finais = leEstadosFinais(arquivo, estados)
     if(finais is None):
         return None, None
@@ -337,15 +343,27 @@ def leAPD(arquivo):
             
                     
     print(f"transicoes: {transicoes}")
-    apd = APD()
-    apd.inicializaAPD(estados,alfabetoPilha,alfabeto,inicial,finais,transicoes)
-    
+    if(ehDeterminista):
+        apd = APD()
+        apd.inicializaAPD(estados,alfabetoPilha,alfabeto,inicial,finais,transicoes)
+        
+                        
+        entradas = leEntrada(arquivo,alfabeto)
+        if (entradas is None):
+            return None, None
+                
+        return apd, entradas
+    else:
+        if(ReconhecePorPilhaVazia):
+            apn = inicializaAPN(estados,alfabetoPilha,alfabeto,iniciais,finais,transicoes,False)
+        else:      
+            apn = inicializaAPN(estados,alfabetoPilha,alfabeto,iniciais,finais,transicoes)
                     
-    entradas = leEntrada(arquivo,alfabeto)
-    if (entradas is None):
-        return None, None
+        entradas = leEntrada(arquivo,alfabeto)
+        if (entradas is None):
+            return None, None
             
-    return apd, entradas
+        return apn, entradas
 
 def leAFD(arquivo):
     estados = leEstados(arquivo)
@@ -392,6 +410,7 @@ def leAFD(arquivo):
                 continue
             else:
                 print("OS SIMBOLOS DE ENTRADA DE UMA TRANSICAO DEVEM SER SEPARADOS POR ESPACO")
+                return None, None
                         
                 
     entradas = leEntrada(arquivo,alfabeto)
@@ -447,6 +466,7 @@ def leAFN(arquivo):
                 continue
             else:
                 print("OS SIMBOLOS DE ENTRADA DE UMA TRANSICAO DEVEM SER SEPARADOS POR ESPACO")
+                return None, None
     
     afn = inicializaAFN(estados,alfabeto,iniciais,finais,transicoes)
     
@@ -456,158 +476,63 @@ def leAFN(arquivo):
     
     return afn, entradas
 
-def leAPN(arquivo, ReconhecePorPilhaVazia):
-    
-    estados = leEstados(arquivo)
-    if(estados is None):
-        return None, None
-            
-    alfabeto = leAlfabeto(arquivo,True,False)
-    if(alfabeto is None):
-        return None, None
-            
-    alfabetoPilha = leAlfabeto(arquivo,True,False)
-    if(alfabetoPilha is None):
-        return None, None
-            
-    iniciais = leEstadosIniciais(arquivo,estados)
-    if(iniciais is None):
-        return None, None
-            
-    finais = leEstadosFinais(arquivo, estados)
-    if(finais is None):
-        return None, None
-            
-
-    #pega transicoes
-    transicoes = []
-    transicao = ['a','b','c','d','e'] #origem, destino, simbolo, desempilha, empilha
-            
-    while(True):
-                
-
-        nomeEstadoOrigem, nomeEstadoDestino, FimDasTransicoes = leEstadosOrigemEDestino(arquivo, estados)
-        if(nomeEstadoOrigem is None)or(nomeEstadoDestino is None)or(FimDasTransicoes is None):
-            return None, None
-        elif(FimDasTransicoes is True):
-            break
-        transicao[0] = nomeEstadoOrigem
-        transicao[1] = nomeEstadoDestino
-
-        while(True):
-            c = arquivo.read(1)
-            if(c == '\n'):
-                break
-            elif(c in alfabeto):
-                transicao[2] = c
-            else:
-                print(f"UMA DAS TRANSICOES NAO EH VALIDA POIS {c} NAO PERTENCE AO ALFABETO")
-                return None, None
-                    
-            c = arquivo.read(1)
-            if(c != ","):
-                print("AS TRANSICOES DEVEM TER O FORMATO (simbolo),(desempilha)/(empilha)")
-                return None, None
-                    
-            c = arquivo.read(1)
-            if(c in alfabetoPilha)or(c == '\\'):
-                transicao[3] = c
-            else:
-                print(f"{c} NAO ESTA NO ALFABETO DE PILHA")
-                return None, None
-                    
-            c = arquivo.read(1)
-            if(c != "/"):
-                print("AS TRANSICOES DEVEM TER O FORMATO (simbolo),(desempilha)/(empilha)")
-                return None, None
-
-            empilha= []
-            c = arquivo.read(1)
-            while(c != ' ')and(c != '\n'):
-                if(c in alfabetoPilha)or(c == '\\'):
-                    empilha.append(c)
-                else:
-                    print(f"{c} NAO ESTA NO ALFABETO DE PILHA")
-                    return None, None
-                c = arquivo.read(1)
-            transicao[4] = empilha
-            transicoes.append(copy.deepcopy(transicao))
-            if(c == '\n'):
-                break
-                    
-    if(ReconhecePorPilhaVazia):
-        apn = inicializaAPN(estados,alfabetoPilha,alfabeto,iniciais,finais,transicoes,False)
-    else:      
-        apn = inicializaAPN(estados,alfabetoPilha,alfabeto,iniciais,finais,transicoes)
-                    
-    entradas = leEntrada(arquivo,alfabeto)
-    if (entradas is None):
-        return None, None
-            
-    return apn, entradas
  
-def leArquivo(caminho: str, maquina= "nada") -> str:
+def leArquivo(caminho: str, maquina= "nada"):
     
-    arquivo = open(caminho, "r")
-    # identifica a maquina
-    if(maquina == "nada"):
-        maquina = arquivo.readline()
-    
-    match maquina:
-        case "@AFD":
-
-            afd, entradas = leAFD(arquivo)
-            arquivo.close()
-            if(afd is None)or(entradas is None):
-                return None
-            return afd, entradas, "@AFD"
-
-        case "@APD":
-            
-            apd, entradas = leAPD(arquivo)
-            arquivo.close()
-            if(apd is None)or(entradas is None):
-                return None
-            return apd, entradas, "@APD"
-
-        case "@MT":
-            
-            mt, entradas = leMaquinaDeTuring(arquivo,False)
-            arquivo.close()
-            if(mt is None)or(entradas is None):
-                return None
-            
-            return mt, entradas, "@MT"
-
-        case "@ALL":
-            
-            mt, entradas = leMaquinaDeTuring(arquivo,True)
-            arquivo.close()
-            if(mt is None)or(entradas is None):
-                return None
-
-            return mt, entradas, "@ALL"
-
-        case "@AFN":
-            afn, entradas = leAFN(arquivo)
-            arquivo.close()
-            if(afn is None)or(entradas is None):
-                return None
-            return afn, entradas, "@AFN"
-                
-        case "@APNP":
-            apnp, entradas = leAPN(arquivo,False)
-            arquivo.close()
-            if(apnp is None)or(entradas is None):
-                return None
-            return apnp, entradas, "@APNP"
+    # arquivo = 
+    with open(caminho, "r") as arquivo:
+        # identifica a maquina
+        if(maquina == "nada"):
+            maquina = arquivo.readline().rstrip('\n')
         
-        case "@APNPV":
-            apnpv, entradas = leAPN(arquivo,True)
-            arquivo.close()
-            if(apnpv is None)or(entradas is None):
-                return None
-            return apnpv, entradas, "@APNPV"
+        match maquina:
+            case "@AFD":
+
+                afd, entradas = leAFD(arquivo)
+                if(afd is None)or(entradas is None):
+                    return None
+                return afd, entradas, "@AFD"
+
+            case "@APD":
+                
+                apd, entradas = leAP(arquivo,True,False)
+                if(apd is None)or(entradas is None):
+                    return None
+                return apd, entradas, "@APD"
+
+            case "@MT":
+                
+                mt, entradas = leMaquinaDeTuring(arquivo,False)
+                if(mt is None)or(entradas is None):
+                    return None
+                
+                return mt, entradas, "@MT"
+
+            case "@ALL":
+                
+                mt, entradas = leMaquinaDeTuring(arquivo,True)
+                if(mt is None)or(entradas is None):
+                    return None
+
+                return mt, entradas, "@ALL"
+
+            case "@AFN":
+                afn, entradas = leAFN(arquivo)
+                if(afn is None)or(entradas is None):
+                    return None
+                return afn, entradas, "@AFN"
+                    
+            case "@APNP":
+                apnp, entradas = leAP(arquivo,False,False)
+                if(apnp is None)or(entradas is None):
+                    return None
+                return apnp, entradas, "@APNP"
+            
+            case "@APNPV":
+                apnpv, entradas = leAP(arquivo,False,True)
+                if(apnpv is None)or(entradas is None):
+                    return None
+                return apnpv, entradas, "@APNPV"
 
     
     return
