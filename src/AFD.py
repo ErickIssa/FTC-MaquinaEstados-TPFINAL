@@ -2,7 +2,7 @@
 
 sempre passar ou dict ou set, depende do que for pedido
 sempre passar o nome do estado, e nao o objeto do estado, para facilitar a busca no dicionario de estados
-se tiver transição com 0 ou com 1, chamar adicionaTransicao 2x uma pa cada simbolo
+se tiver transição com 0 ou com 1, chamar adicionaTransicao 2x uma para cada simbolo
 
 *talvz dps criar um estado de erro pra toda afd.
 

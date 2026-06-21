@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 
 LAMBDA = "\\"
-limite_Computacoes = 10000
+LIMITE_COMPUTACOES = 10000
 #estrutura que define uma transicao e seus atributos
 @dataclass
 class Transicao:
@@ -27,20 +27,20 @@ class APN:
     alfabetoPilha: list[str] = field(default_factory=list)
 
 #Cria um estado
-def criaEstadoAPN(apn: APN, nome: str) -> None:
+def criaEstadoAPN(apn, nome):
     apn.estados[nome] = Estado(nome=nome)
 
 #Define se um estado é ou não inicial
-def defineEstadoInicial(apn: APN, nomeEstado: str) -> None:
+def defineEstadoInicial(apn, nomeEstado):
     apn.estados[nomeEstado].inicial = True
 
 #Define os estados finais do APN
-def defineEstadosFinais(apn: APN, estadosFinais: list[str]) -> None:
+def defineEstadosFinais(apn, estadosFinais):
     for nome in estadosFinais:
         apn.estados[nome].final = True
 
 #Cria as transicoes do APN
-def criaTransicaoAPN(apn: APN, origem: str, destino: str, simboloLido: str, desempilha: str, empilha: str | list[str],):
+def criaTransicaoAPN(apn, origem, destino, simboloLido, desempilha, empilha):
     if empilha == LAMBDA:
         simbolos_empilhados: list[str] = []#se for lambda, o caractere a empilhar será vazio
     else:
@@ -52,18 +52,18 @@ def criaTransicaoAPN(apn: APN, origem: str, destino: str, simboloLido: str, dese
     apn.estados[origem].transicoes.append(transicao)
 
 
-def inicializaAPN(nomesEstados, alfabetoPilha, alfabetoEntrada, estadosIniciais, estadosFinais, transicoes):
+def inicializaAPN(nomesEstados, alfabetoPilha, alfabetoEntrada, estadosIniciais, estadosFinais, transicoes, exigir_estado_final: bool = True):
     apn = APN()
     apn.alfabetoPilha = alfabetoPilha
     apn.alfabetoEntrada = alfabetoEntrada
 
     for nome in nomesEstados:
         criaEstadoAPN(apn, nome)
-
+    
     for estado in estadosIniciais:
         defineEstadoInicial(apn, estado)
-
-    defineEstadosFinais(apn, estadosFinais)
+    if exigir_estado_final == True:
+        defineEstadosFinais(apn, estadosFinais)
 
     for origem, destino, simboloLido, desempilha, empilha in transicoes:
         criaTransicaoAPN(apn, origem, destino, simboloLido, desempilha, empilha)
@@ -140,7 +140,7 @@ def reconhecerPalavraAPN(apn, palavra, exigir_estado_final: bool = True):
         estado_atual, indice, pilha = fronteira.pop()
         configuracoes_testadas += 1
 
-        if configuracoes_testadas > limite_Computacoes:
+        if configuracoes_testadas > LIMITE_COMPUTACOES:
             # Evita loop infinito em APNs.
             return False
 
