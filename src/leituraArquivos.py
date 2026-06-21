@@ -7,6 +7,8 @@ from .apn import APN
 from .AFN import inicializaAFN
 from .apn import inicializaAPN
 
+import copy
+
 def estadosTemNomesIguais(estados)->bool:
     return len(estados) != len(set(estados))
 
@@ -87,9 +89,10 @@ def leEstadosIniciais(arquivo, estados: list):
 def leEntrada(arquivo, alfabeto):
     entradas = []
     while(True):
-        entrada = arquivo.readline().rstrip('\n')
+        entrada = arquivo.readline()
         if(entrada == ""):
             break
+        entrada = entrada.rstrip('\n')
         valido = True
         for i in entrada:
             if i not in alfabeto:
@@ -126,10 +129,6 @@ def leEstadosOrigemEDestino(arquivo, estados: list):
         return None, None, None
 
 
-    if(nomeEstadoOrigem not in estados):
-        print(f"ESTADO DE ORIGEM '{nomeEstadoOrigem}' NAO ESTA NA LISTA DE ESTADOS")
-        return None, None, None
-
     arquivo.read(3)
 
     while(True):
@@ -161,7 +160,7 @@ def leMaquinaDeTuring(arquivo, EhALL: bool):
     for i in alfabetoFita:
         if(i in alfabeto):
             print(f"{i} JA ESTA NO ALFABETO DE ENTRADA, O ALFABETO DE FITA DEVE SER EXCLUSIVO PARA A FITA")
-            return
+            return None, None
             
     inicial = leEstadoInicial(arquivo, estados)
     if(inicial is None):
@@ -193,19 +192,19 @@ def leMaquinaDeTuring(arquivo, EhALL: bool):
                 transicao[0] = c
             else:
                 print("UMA DAS TRANSICOES NAO EH VALIDA POIS CONTEM CARACTERE FORA DO ALFABETO")
-                return
+                return None, None
                     
             c = arquivo.read(1)
             if(c != "/"):
                 print("AS TRANSICOES DEVEM TER O FORMATO (lido)/(escrito)(direcao)")
-                return
+                return None, None
                     
             c = arquivo.read(1)
             if(c in alfabeto)or(c in alfabetoFita)or(c == '<')or(c == '>')or(c == '_'):
                 transicao[1] = c
             else:
                 print("UMA DAS TRANSICOES NAO EH VALIDA POIS CONTEM CARACTERE FORA DO ALFABETO")
-                return
+                return None, None
                     
             c = arquivo.read(1)
             if(c == 'D'):
@@ -214,9 +213,9 @@ def leMaquinaDeTuring(arquivo, EhALL: bool):
                 transicao[2] = c
             else:
                 print(f"{c} NAO EH ACEITO COMO DIRECAO PARA A MAQUINA, SAO ACEITOS APENAS: E , D")
-                return
+                return None, None
                     
-            transicoes.append(transicao.copy())
+            transicoes.append(copy.deepcopy(transicao))
 
             c = arquivo.read(1)
             if(c == '\n'):
@@ -232,7 +231,8 @@ def leMaquinaDeTuring(arquivo, EhALL: bool):
         for j in transicoes:
             if j[4] == i:
                 transicaoEstadoI = [j[0],j[1],j[2],j[3]]
-                transicoesEstadoI.append(transicaoEstadoI.copy())
+                transicoesEstadoI.append(copy.deepcopy(transicaoEstadoI))
+                
 
         if(i in finais):
             novo_estado = estado(i, transicoesEstadoI, True)
@@ -331,7 +331,7 @@ def leAPD(arquivo):
                 c = arquivo.read(1)
             transicao[4] = empilha
             print(f"transicao adicionada: {transicao}")
-            transicoes.append(transicao.copy())
+            transicoes.append(copy.deepcopy(transicao))
             if(c == '\n'):
                 break
             
@@ -383,7 +383,7 @@ def leAFD(arquivo):
                 simbolo = c
             else:
                 print(f"{c} ESTA FORA DO ALFABETO")
-                return
+                return None, None
             afd.adicionaTransicao(nomeEstadoOrigem, simbolo ,nomeEstadoDestino)
             c = arquivo.read(1)
             if(c == '\n'):
@@ -414,7 +414,7 @@ def leAFN(arquivo):
     if(iniciais is None):
         return None, None
     
-    finais = leEstadosFinais(arquivo, finais)
+    finais = leEstadosFinais(arquivo, estados)
     if(finais is None):
         return None, None
     
@@ -435,10 +435,10 @@ def leAFN(arquivo):
                 break
             elif(c in alfabeto):
                 transicao[2] = c
-                transicoes.append(transicao.copy())
+                transicoes.append(copy.deepcopy(transicao))
             else:
                 print(f"{c} ESTA FORA DO ALFABETO")
-                return
+                return None, None
             
             c = arquivo.read(1)
             if(c == '\n'):
@@ -531,7 +531,7 @@ def leAPN(arquivo, ReconhecePorPilhaVazia):
                     return None, None
                 c = arquivo.read(1)
             transicao[4] = empilha
-            transicoes.append(transicao.copy())
+            transicoes.append(copy.deepcopy(transicao))
             if(c == '\n'):
                 break
                     
@@ -557,6 +557,7 @@ def leArquivo(caminho: str, maquina= "nada") -> str:
         case "@AFD":
 
             afd, entradas = leAFD(arquivo)
+            arquivo.close()
             if(afd is None)or(entradas is None):
                 return None
             return afd, entradas, "@AFD"
@@ -564,6 +565,7 @@ def leArquivo(caminho: str, maquina= "nada") -> str:
         case "@APD":
             
             apd, entradas = leAPD(arquivo)
+            arquivo.close()
             if(apd is None)or(entradas is None):
                 return None
             return apd, entradas, "@APD"
@@ -571,6 +573,7 @@ def leArquivo(caminho: str, maquina= "nada") -> str:
         case "@MT":
             
             mt, entradas = leMaquinaDeTuring(arquivo,False)
+            arquivo.close()
             if(mt is None)or(entradas is None):
                 return None
             
@@ -579,6 +582,7 @@ def leArquivo(caminho: str, maquina= "nada") -> str:
         case "@ALL":
             
             mt, entradas = leMaquinaDeTuring(arquivo,True)
+            arquivo.close()
             if(mt is None)or(entradas is None):
                 return None
 
@@ -586,20 +590,23 @@ def leArquivo(caminho: str, maquina= "nada") -> str:
 
         case "@AFN":
             afn, entradas = leAFN(arquivo)
+            arquivo.close()
             if(afn is None)or(entradas is None):
                 return None
             return afn, entradas, "@AFN"
                 
         case "@APNP":
             apnp, entradas = leAPN(arquivo,False)
+            arquivo.close()
             if(apnp is None)or(entradas is None):
                 return None
             return apnp, entradas, "@APNP"
         
         case "@APNPV":
             apnpv, entradas = leAPN(arquivo,True)
+            arquivo.close()
             if(apnpv is None)or(entradas is None):
-                return None, None, None
+                return None
             return apnpv, entradas, "@APNPV"
 
     
