@@ -229,18 +229,16 @@ def leMaquinaDeTuring(arquivo, EhALL: bool):
     estadosInstanciados = []
     for i in estados:
         transicoesEstadoI = []
-        counter = 0
         for j in transicoes:
             if j[4] == i:
                 transicaoEstadoI = [j[0],j[1],j[2],j[3]]
-                transicoesEstadoI[counter] = transicaoEstadoI
-                counter += 1
+                transicoesEstadoI.append(transicaoEstadoI.copy())
 
         if(i in finais):
-            estado = estado(i, transicoesEstadoI, True)
+            novo_estado = estado(i, transicoesEstadoI, True)
         else:
-            estado = estado(i, transicoesEstadoI)
-        estadosInstanciados.append(estado)
+            novo_estado = estado(i, transicoesEstadoI)
+        estadosInstanciados.append(novo_estado)
     
     if(EhALL):
         mt = turing(alfabeto,estadosInstanciados,inicial,alfabetoFita,finais,True)
