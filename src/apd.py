@@ -32,7 +32,6 @@ class APD:
         
     #Cria um estado
     def criaEstadoAPD(self, nome):
-
         estado=Estado(nome=nome)
         self.estados[nome] = estado
 
@@ -44,19 +43,6 @@ class APD:
     def defineEstadosFinais(self, estadosFinais):
         for nome in estadosFinais:
             self.estados[nome].final=True
-
-    #Cria as transicoes do apd
-    # def criaTransicaoAPD(self, origem, destino, simboloLido, desempilha, empilha):
-    #     if empilha == LAMBDA:
-    #         empilha = [] #se for lambda, o caractere a empilhar será vazio
-    #     else:
-    #         empilha = list(empilha)
-
-    #     #cria a transição
-    #     transicao = Transicao(origem=origem, destino=destino, entrada=simboloLido, desempilha=desempilha, empilha=empilha)
-
-    #     #associa transição ao estado de origem
-    #     self.estados[origem].transicoes.append(transicao)
 
     def criaTransicaoAPD(self, origem, destino, simboloLido, desempilha, empilha):
 
@@ -71,6 +57,8 @@ class APD:
 
         # verifica se a nova transição é compatível com alguma transição já existente. Se for, nao cria a nova transicao
         for transicaoExistente in estadoOrigem.transicoes:
+
+            #se entrou aqui, entao o estado ja contem ao menos uma transição
             
             #duas transicoes com mesma entrada,ou duas transicoes sendo uma delas com entrada lambda
             conflitoEntrada = (simboloLido == transicaoExistente.entrada or simboloLido == LAMBDA or transicaoExistente.entrada == LAMBDA)
@@ -122,7 +110,7 @@ class APD:
     def reconhecerPalavraAPD(self, palavra):
 
         # limpa a pilha
-        self.pilha.clear()
+        pilha = []
 
         # procura estado inicial
         estadoAtual = None
@@ -151,25 +139,26 @@ class APD:
                 if not simboloEntradaValido: #se não bate, verifica a próxima transição existente
                     continue
 
-                if t.desempilha != LAMBDA: #a transicao exige que desempilhe um simbolo
+                if t.desempilha != LAMBDA: #se o símbolo a desempilhar não é palavra vazia, precisa desempilhar um simbolo
 
                     #se a pilha esta vazia ou o topo não é o símbolo a ser desempilhado, vai pra próxima transição
-                    if not self.pilha:
+                    if not pilha:
                         continue 
-                    if self.pilha[-1] != t.desempilha:
+                    if pilha[-1] != t.desempilha:
                         continue
 
-                # consome o simbolo de entrada, avança na palavra
+                #se chegou aqui, significa que a transicao pode acontecer
+                # consome o simbolo de entrada(avança na palavra)
                 if t.entrada != LAMBDA:
                     i += 1
 
                 # desempilha
                 if t.desempilha != LAMBDA:
-                    self.pilha.pop()
+                    pilha.pop()
 
                 # empilha
                 for simbolo in reversed(t.empilha):
-                    self.pilha.append(simbolo)
+                    pilha.append(simbolo)
 
                 # avança para o próximo estado
                 estadoAtual = self.estados[t.destino]
@@ -181,7 +170,7 @@ class APD:
                 break
 
         # se consumiu a palavra toda, parou em um estado final e a pilha está vazia, reconhece a palavra
-        return (i == len(palavra) and estadoAtual.final and len(self.pilha) == 0)
+        return (i == len(palavra) and estadoAtual.final and len(pilha) == 0)
 
     def processaPalavras(self, palavras):
         for palavra in palavras:
