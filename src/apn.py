@@ -172,9 +172,9 @@ def reconhecerPalavraAPN(apn, palavra, exigir_estado_final: bool = True):
     return False
 
 
-def processaPalavrasAPN(palavras, apn):
+def processaPalavrasAPN(palavras, apn, exigir_estado_final: bool = True):
     for palavra in palavras:
-        if reconhecerPalavraAPN(apn, palavra):
+        if reconhecerPalavraAPN(apn, palavra, exigir_estado_final):
             print("OK")
         else:
             print("X")

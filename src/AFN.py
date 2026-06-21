@@ -29,7 +29,7 @@ class AFN:
 
 
 # Cria um estado.
-def criaEstadoAFN(afn: AFN, nome: str):
+def criaEstadoAFN(afn, nome):
     afn.estados[nome] = Estado(nome=nome)
 
 
@@ -39,7 +39,7 @@ def defineEstadoInicial(afn, nomeEstado):
 
 
 # Define os estados finais do AFN.
-def defineEstadosFinais(afn: AFN, estadosFinais: list[str]) -> None:
+def defineEstadosFinais(afn, estadosFinais):
     for nome in estadosFinais:
         afn.estados[nome].final = True
 
@@ -74,7 +74,7 @@ def inicializaAFN(nomesEstados, alfabetoEntrada, estadosIniciais, estadosFinais,
     return afn
 
 
-def marcarEstadosIniciais(afn: AFN) -> list[Estado]:
+def marcarEstadosIniciais(afn):
     estadosIniciais = []
 
     for estado in afn.estados.values():
@@ -163,7 +163,7 @@ def reconhecerPalavraAFN(afn, palavra):
     return False
 
 
-def processaPalavrasAFN(palavras: list[str], afn: AFN) -> None:
+def processaPalavrasAFN(palavras, afn):
     for palavra in palavras:
         if reconhecerPalavraAFN(afn, palavra):
             print("OK")
