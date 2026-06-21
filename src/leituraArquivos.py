@@ -1,13 +1,13 @@
-from .AFD import AFD
-from .apd import APD
-from .turing import turing
-from .AFN import AFN
-from .apn import APN
+from AFD import AFD
+from apd import APD
+from turing import *
+from AFN import AFN
+from apn import APN
 
-from .estado import *
-from .apd import inicializaAPD
-from .AFN import inicializaAFN
-from .apn import inicializaAPN
+
+#from apd import inicializaAPD
+#from AFN import inicializaAFN
+#from apn import inicializaAPN
 
 def estadosTemNomesIguais(estados)->bool:
     return len(estados) != len(set(estados))
@@ -29,7 +29,7 @@ def leAlfabeto(arquivo, naoPodePalavraVazia: bool, ehMaquinaDeTuring: bool):
 
     #pega o alfabeto
     arquivo.read(3)
-    alfabeto: list
+    alfabeto = []
     while(True):
         c = arquivo.read(1)
         if(c == '\n'):
@@ -124,8 +124,12 @@ def leEstadosOrigemEDestino(arquivo, estados: list):
         return None
 
     if(FimDasTransicoes):
-        arquivo.read(3)
-        return nomeEstadoOrigem, nomeEstadoDestino, FimDasTransicoes
+        arquivo.readline() # Limpa o resto dos "---" e a quebra de linha
+        return "", "", True
+
+    if(nomeEstadoOrigem not in estados):
+        print(f"ESTADO DE ORIGEM '{nomeEstadoOrigem}' NAO ESTA NA LISTA DE ESTADOS")
+        return None
 
     arquivo.read(3)
 
@@ -571,7 +575,7 @@ def leArquivo(caminho: str, maquina= "nada") -> str:
             mt, entradas = leMaquinaDeTuring(arquivo,True)
             if(mt is None)or(entradas is None):
                 return None
-            
+
             return mt, entradas, "@ALL"
 
         case "@AFN":
