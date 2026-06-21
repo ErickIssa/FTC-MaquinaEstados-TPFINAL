@@ -1,4 +1,4 @@
-from .leituraArquivos import leArquivo
+from leituraArquivos import leArquivo
 def main():
     VERDE = "\033[92m"
     AMARELO = "\033[93m"

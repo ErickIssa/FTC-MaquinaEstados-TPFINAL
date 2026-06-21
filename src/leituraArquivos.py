@@ -1,11 +1,11 @@
-from .AFD import AFD
-from .apd import APD
-from .turing import *
-from .AFN import AFN
-from .apn import APN
+from AFD import AFD
+from apd import APD
+from turing import *
+from AFN import AFN
+from apn import APN
 
-from .AFN import inicializaAFN
-from .apn import inicializaAPN
+#from .AFN import inicializaAFN
+#from .apn import inicializaAPN
 
 import copy
 
