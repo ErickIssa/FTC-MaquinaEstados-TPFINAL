@@ -1,4 +1,4 @@
-from leituraArquivos import leArquivo
+from .leituraArquivos import leArquivo
 def main():
     VERDE = "\033[92m"
     AMARELO = "\033[93m"
@@ -8,13 +8,13 @@ def main():
     RESET = "\033[0m"
     arte = f"""
         {VERDE}==========================================
-        |{AMARELO}                   /\                   {VERDE}|
-        |{AMARELO}                 /    \                 {VERDE}|
-        |{AMARELO}               /        \               {VERDE}|
-        |{AMARELO}             /    {AZUL}(  ){AMARELO}    \             {VERDE}|
-        |{AMARELO}               \        /               {VERDE}|
-        |{AMARELO}                 \    /                 {VERDE}|
-        |{AMARELO}                   \/                   {VERDE}|
+        |{AMARELO}                   /\\                   {VERDE}|
+        |{AMARELO}                 /    \\                 {VERDE}|
+        |{AMARELO}               /        \\               {VERDE}|
+        |{AMARELO}             /    {AZUL}(  ){AMARELO}    \\             {VERDE}|
+        |{AMARELO}               \\        /               {VERDE}|
+        |{AMARELO}                 \\    /                 {VERDE}|
+        |{AMARELO}                   \\/                   {VERDE}|
         ==========================================
         {BRANCO}               VAI BRASIL!                {RESET}
         """
