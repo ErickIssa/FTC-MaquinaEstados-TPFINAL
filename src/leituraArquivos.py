@@ -42,9 +42,6 @@ def leAlfabeto(arquivo, naoPodePalavraVazia: bool, ehMaquinaDeTuring: bool):
            return None
         alfabeto.append(c)
 
-    if len(alfabeto) == 0:
-        print("ALFABETO NAO PODE ESTAR VAZIO")
-        return None
     return alfabeto
 
 def leEstadoInicial(arquivo, estados: list):
