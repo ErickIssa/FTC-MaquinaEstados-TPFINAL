@@ -42,9 +42,6 @@ def leAlfabeto(arquivo, naoPodePalavraVazia: bool, ehMaquinaDeTuring: bool):
            return None
         alfabeto.append(c)
 
-    if len(alfabeto) == 0:
-        print("ALFABETO NAO PODE ESTAR VAZIO")
-        return None
     return alfabeto
 
 def leEstadoInicial(arquivo, estados: list):
@@ -452,7 +449,7 @@ def leAFN(arquivo):
             c = arquivo.read(1)
             if(c == '\n'):
                 break
-            elif(c in alfabeto):
+            elif(c in alfabeto)or(c == '\\'):
                 transicao[2] = c
                 transicoes.append(copy.deepcopy(transicao))
             else:
