@@ -1,7 +1,7 @@
 @ALL
 Q: ini ac0 ac1 vt0 vt1 vti acp
 S: 01
-G:
+G: 
 I: ini
 F: acp
 ini -> ac0 | 0/_D

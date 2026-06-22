@@ -1,7 +1,7 @@
 @ALL
 Q: x fim
 S: 01
-G:
+G: 
 I: x
 F: fim
 x -> x | 0/_D 1/1D
