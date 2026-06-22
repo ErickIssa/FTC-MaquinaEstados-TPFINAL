@@ -484,6 +484,8 @@ def leArquivo(caminho: str, maquina= "nada"):
         # identifica a maquina
         if(maquina == "nada"):
             maquina = arquivo.readline().rstrip('\n')
+        else:
+            arquivo.readline()
         
         match maquina:
             case "@AFD":

@@ -51,7 +51,7 @@ def main():
 
             maqCriada, listaEntradas, tipoMaq = resultadoLeitura
             print(maqCriada)
-            print(listaEntradas)
+
             print(f"\n{VERDE}Rola a bola! A máquina {tipoMaq} entrou em campo.{RESET}\n")
 
             for entrada in listaEntradas:
