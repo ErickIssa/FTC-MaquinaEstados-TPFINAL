@@ -1,8 +1,8 @@
 from .leituraArquivos import leArquivo
-from .AFN import AFN, inicializaAFN, processaPalavrasAFN
-from .apn import APN, inicializaAPN
-from .AFD import AFD
-from .apd import APD
+from .AFN import *
+from .apn import *
+from .AFD import *
+from .apd import *
 from .turing import *
 def main():
     VERDE = "\033[92m"
