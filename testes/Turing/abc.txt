@@ -1,0 +1,21 @@
+@MT
+Q: q0 q1 q2 q3 q4 qf
+S: abc
+G: XYZ
+I: q0
+F: qf
+q0 -> q1 | a/XD
+q0 -> q4 | Y/YD
+q1 -> q1 | a/aD Y/YD
+q1 -> q2 | b/YD
+q2 -> q2 | b/bD Z/ZD
+q2 -> q3 | c/ZE
+q3 -> q3 | a/aE b/bE Y/YE Z/ZE
+q3 -> q0 | X/XD
+q4 -> q4 | Y/YD Z/ZD
+q4 -> qf | _/_E
+---
+abc
+aabbcc
+abbc
+aaabbbccc
