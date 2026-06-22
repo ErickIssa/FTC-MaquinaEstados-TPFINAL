@@ -33,7 +33,7 @@ def main():
         x = int(input(f"\n{VERDE}Escolha sua jogada (1 ou 2): {RESET}"))
         if x == 2:
             print(f"\n{AZUL}Escalação de Máquinas disponíveis(digite @ seguido do nome da maquina):{RESET}")
-            print("1 - @AFD\n2 - @AFN\n3 - @APD\n4 - @APNP\n5 - @APNPV\n6 - @MT\n7 - @ALL")
+            print("1 - @AFD\n2 - @AFN\n3 - @APD\n4 - @APNP\n5 - @APNPV(reconhecimento por pilha vazia)\n6 - @MT\n7 - @ALL")
 
             op = str(input(f"{AMARELO}Digite o nome da máquina escalada: {RESET}"))
             caminho = input(f"{AMARELO}Digite o caminho do arquivo de entrada: {RESET}")
