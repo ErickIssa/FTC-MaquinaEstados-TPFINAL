@@ -163,10 +163,9 @@ def reconhecerPalavraAFN(afn, palavra):
     return False
 
 
-def processaPalavrasAFN(palavras, afn):
-    for palavra in palavras:
-        if reconhecerPalavraAFN(afn, palavra):
-            print("OK")
-        else:
-            print("X")
+def processaPalavrasAFN(palavra, afn):
+    if reconhecerPalavraAFN(afn, palavra):
+        print("OK")
+    else:
+        print("X")
 
