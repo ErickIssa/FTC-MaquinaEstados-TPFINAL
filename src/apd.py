@@ -70,8 +70,10 @@ class APD:
                 print("erro: transicoes compativeis")
                 return
 
-        if empilha == LAMBDA:
-            empilha = [] #se for lambda, o caractere a empilhar será vazio
+        if empilha == LAMBDA or empilha == [LAMBDA]:
+            empilha = []
+        elif isinstance(empilha, list):
+            empilha = empilha
         else:
             empilha = list(empilha)
 
@@ -170,15 +172,14 @@ class APD:
             if not encontrouTransicaoValida:
                 break
 
-        # se consumiu a palavra toda e parou em um estado final, reconhece a palavra
-        return (i == len(palavra) and estadoAtual.final)
+        # se consumiu a palavra toda e a pilha está vazia, reconhece a palavra
+        return (i == len(palavra) and len(pilha) == 0)
 
-    def processaPalavras(self, palavras):
-        for palavra in palavras:
-            if self.reconhecerPalavraAPD(palavra):
-                print("OK")
-            else:
-                print("X")
+    def processaPalavras(self, palavra):
+        if self.reconhecerPalavraAPD(palavra):
+            print("OK")
+        else:
+            print("X")
 
 
 

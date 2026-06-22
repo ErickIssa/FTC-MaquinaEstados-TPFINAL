@@ -41,10 +41,13 @@ def defineEstadosFinais(apn, estadosFinais):
 
 #Cria as transicoes do APN
 def criaTransicaoAPN(apn, origem, destino, simboloLido, desempilha, empilha):
-    if empilha == LAMBDA:
-        simbolos_empilhados: list[str] = []#se for lambda, o caractere a empilhar será vazio
+    if empilha == LAMBDA or empilha == [LAMBDA]:
+        empilha = []
+    elif isinstance(empilha, list):
+        empilha = empilha
     else:
-        simbolos_empilhados = list(empilha)
+        empilha = list(empilha)
+
     #cria a transição
     transicao = Transicao(origem=origem, destino=destino, entrada=simboloLido, desempilha=desempilha, empilha=simbolos_empilhados,
     )
