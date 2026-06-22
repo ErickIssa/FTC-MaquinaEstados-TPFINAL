@@ -452,7 +452,7 @@ def leAFN(arquivo):
             c = arquivo.read(1)
             if(c == '\n'):
                 break
-            elif(c in alfabeto):
+            elif(c in alfabeto)or(c == '\\'):
                 transicao[2] = c
                 transicoes.append(copy.deepcopy(transicao))
             else:
