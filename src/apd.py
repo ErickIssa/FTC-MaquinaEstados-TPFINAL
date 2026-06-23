@@ -172,8 +172,8 @@ class APD:
             if not encontrouTransicaoValida:
                 break
 
-        # se consumiu a palavra toda e a pilha está vazia, reconhece a palavra
-        return (i == len(palavra) and len(pilha) == 0)
+        # se consumiu a palavra toda, o estado é final e a pilha está vazia, reconhece a palavra
+        return (i == len(palavra) and len(pilha) == 0 and estadoAtual.final)
 
     def processaPalavras(self, palavra):
         if self.reconhecerPalavraAPD(palavra):
