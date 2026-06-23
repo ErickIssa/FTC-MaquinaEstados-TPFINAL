@@ -74,7 +74,7 @@ class AFD:
         
 
         for simbolo in entrada:
-            if simbolo not in self.estados[estadoAtual].transicoes:
+            if simbolo not in self.estados[estadoAtual].transicoes or simbolo == "\\":
                 print(f"X") 
                 return False #simbolo nao tem transicao, palavra rejeitada, vai pro estado de "erro"
             else:
