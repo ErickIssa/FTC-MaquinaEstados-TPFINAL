@@ -298,7 +298,7 @@ def leAP(arquivo, ehDeterminista: bool, ReconhecePorPilhaVazia:bool):
         while(True):
             c = arquivo.read(1)
             
-            if(c in alfabeto):
+            if(c in alfabeto)or(c == '\\'):
                 transicao[2] = c
             else:
                 print(f"UMA DAS TRANSICOES NAO EH VALIDA POIS {c} NAO PERTENCE AO ALFABETO")
