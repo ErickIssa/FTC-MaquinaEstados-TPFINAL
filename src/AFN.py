@@ -109,7 +109,7 @@ def reconhecerPalavraAFN(afn, palavra):
     estados_iniciais = marcarEstadosIniciais(afn)
 
     if len(estados_iniciais) == 0:
-        print("O automato não possui estado inicial")
+        print("O automato não possui estado inicial") 
         return False
     # Foi reutilizado a mesma lógica da APN, porém aqui
     # Cada item da fronteira é uma configuração:

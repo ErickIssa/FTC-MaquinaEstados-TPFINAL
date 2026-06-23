@@ -49,7 +49,7 @@ def criaTransicaoAPN(apn, origem, destino, simboloLido, desempilha, empilha):
         empilha = list(empilha)
 
     #cria a transição
-    transicao = Transicao(origem=origem, destino=destino, entrada=simboloLido, desempilha=desempilha, empilha=simbolos_empilhados,
+    transicao = Transicao(origem=origem, destino=destino, entrada=simboloLido, desempilha=desempilha, empilha=empilha,
     )
     #associa transição ao estado de origem
     apn.estados[origem].transicoes.append(transicao)
@@ -76,7 +76,7 @@ def inicializaAPN(nomesEstados, alfabetoPilha, alfabetoEntrada, estadosIniciais,
 
 def marcarEstadosIniciais(apn):
     estadosIniciais = []
-    for estado in APN.estados.values():
+    for estado in apn.estados.values():
         if estado.inicial:
             estadosIniciais.append(estado)
     return estadosIniciais
@@ -175,10 +175,8 @@ def reconhecerPalavraAPN(apn, palavra, exigir_estado_final: bool = True):
     return False
 
 
-def processaPalavrasAPN(palavras, exigir_estado_final: bool = True):
-    apn = APN()
-    for palavra in palavras:
-        if reconhecerPalavraAPN(apn, palavra, exigir_estado_final):
-            print("OK")
-        else:
-            print("X")
+def processaPalavrasAPN(palavra,apn, exigir_estado_final: bool = True):
+    if reconhecerPalavraAPN(apn, palavra, exigir_estado_final):
+        print("OK")
+    else:
+        print("X")
