@@ -330,13 +330,11 @@ def leAP(arquivo, ehDeterminista: bool, ReconhecePorPilhaVazia:bool):
                     return None, None
                 c = arquivo.read(1)
             transicao[4] = empilha
-            print(f"transicao adicionada: {transicao}")
             transicoes.append(copy.deepcopy(transicao))
             if(c == '\n'):
                 break
             
                     
-    print(f"transicoes: {transicoes}")
     if(ehDeterminista):
         apd = APD()
         apd.inicializaAPD(estados,alfabetoPilha,alfabeto,inicial,finais,transicoes)
