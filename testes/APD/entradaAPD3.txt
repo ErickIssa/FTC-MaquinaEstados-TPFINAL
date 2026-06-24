@@ -1,17 +1,23 @@
 @APD
-Q: q0 q1
-S: a b
-G: X
-I: q0
-F: q1
-q0 -> q0 | a,\/X
-q0 -> q1 | b,X/X
-q1 -> q1 | a,X/\
+Q: igual dif
+S: 0 1
+G: Z U F
+I: igual
+F: igual
+igual -> dif | 0,\/ZF
+igual -> dif | 1,\/UF
+dif -> igual | \,F/\
+dif -> dif | 0,Z/ZZ
+dif -> dif | 0,U/\
+dif -> dif | 1,U/UU
+dif -> dif | 1,Z/\
 ---
-aba
-aabaa
-aaabaaa
-ab
-aaba
-baa
-aab
+0011
+01
+
+1100
+0110
+1110100100
+011
+10101
+0011010
