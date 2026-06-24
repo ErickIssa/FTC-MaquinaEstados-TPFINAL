@@ -154,10 +154,7 @@ def leMaquinaDeTuring(arquivo, EhALL: bool):
     alfabetoFita = leAlfabeto(arquivo,True,True)
     if(alfabetoFita is None):
         return None, None
-    for i in alfabetoFita:
-        if(i in alfabeto):
-            print(f"{i} JA ESTA NO ALFABETO DE ENTRADA, O ALFABETO DE FITA DEVE SER EXCLUSIVO PARA A FITA")
-            return None, None
+
             
     inicial = leEstadoInicial(arquivo, estados)
     if(inicial is None):
