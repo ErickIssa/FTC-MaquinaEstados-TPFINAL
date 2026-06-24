@@ -50,7 +50,7 @@ def main():
         if resultadoLeitura is not None:
 
             maqCriada, listaEntradas, tipoMaq = resultadoLeitura
-            print(maqCriada)
+
 
             print(f"\n{VERDE}Rola a bola! A máquina {tipoMaq} entrou em campo.{RESET}\n")
 
